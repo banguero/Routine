@@ -5,6 +5,11 @@ struct ContentView: View {
     @State private var selectedDay = 6 // Fri (0-indexed from Sat)
     @State private var selectedTab = 0
     
+    // Haptic feedback generators
+    private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    private let impactMedium = UIImpactFeedbackGenerator(style: .medium)
+    private let selectionFeedback = UISelectionFeedbackGenerator()
+    
     let categories = [
         ("Eating", "fork.knife"),
         ("Mindfulness", "brain.head.profile"),
@@ -122,6 +127,7 @@ struct ContentView: View {
                         isSelected: selectedCategory == index
                     )
                     .onTapGesture {
+                        impactLight.impactOccurred()
                         selectedCategory = index
                     }
                 }
@@ -160,6 +166,7 @@ struct ContentView: View {
                     hasDot: true
                 )
                 .onTapGesture {
+                    selectionFeedback.selectionChanged()
                     selectedDay = index
                 }
             }
@@ -338,7 +345,9 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                Button(action: {}) {
+                Button(action: {
+                    impactMedium.impactOccurred()
+                }) {
                     ZStack {
                         Circle()
                             .fill(Color(red: 0.4, green: 0.65, blue: 0.95))
@@ -393,7 +402,9 @@ struct ContentView: View {
             
             Spacer()
             
-            Button(action: {}) {
+            Button(action: {
+                impactLight.impactOccurred()
+            }) {
                 ZStack {
                     Circle()
                         .stroke(Color.gray.opacity(0.3), lineWidth: 2)
@@ -434,6 +445,7 @@ struct ContentView: View {
     
     private func tabButton(icon: String, title: String, index: Int, isSelected: Bool) -> some View {
         Button(action: {
+            selectionFeedback.selectionChanged()
             selectedTab = index
         }) {
             VStack(spacing: 3) {
