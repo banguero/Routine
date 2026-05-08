@@ -32,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		4B90CD8F2FAE8A5F00D3F870 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		4B90CD982FAE95FD00D3F870 /* Routine.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Routine.entitlements; sourceTree = "<group>"; };
 		AA000005 /* RoutineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineApp.swift; sourceTree = "<group>"; };
 		AA000006 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AA000007 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -79,6 +80,7 @@
 		AA00000D /* Routine */ = {
 			isa = PBXGroup;
 			children = (
+				4B90CD982FAE95FD00D3F870 /* Routine.entitlements */,
 				AA000005 /* RoutineApp.swift */,
 				AA000006 /* ContentView.swift */,
 				AA000046 /* Models */,
@@ -284,6 +286,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = Routine/Routine.entitlements;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = JBBRNJ2Z4M;
@@ -315,7 +318,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.Routine;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Routine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -358,6 +361,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = Routine/Routine.entitlements;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = JBBRNJ2Z4M;
@@ -382,7 +386,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.Routine;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Routine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
@@ -408,7 +412,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.Routine;
+				PRODUCT_BUNDLE_IDENTIFIER = app.routine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -432,7 +436,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.Routine;
+				PRODUCT_BUNDLE_IDENTIFIER = app.routine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
