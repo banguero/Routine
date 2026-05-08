@@ -11,6 +11,19 @@
 		AA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000006 /* ContentView.swift */; };
 		AA000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA000007 /* Assets.xcassets */; };
 		AA000004 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA000009 /* Preview Assets.xcassets */; };
+		AA000020 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000033 /* User.swift */; };
+		AA000021 /* FoodEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000034 /* FoodEntry.swift */; };
+		AA000022 /* WaterEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000035 /* WaterEntry.swift */; };
+		AA000023 /* DailySummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000036 /* DailySummary.swift */; };
+		AA000024 /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000037 /* FirebaseManager.swift */; };
+		AA000025 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000038 /* AuthService.swift */; };
+		AA000026 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000039 /* FirestoreService.swift */; };
+		AA000027 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000040 /* StorageService.swift */; };
+		AA000028 /* FoodRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000041 /* FoodRecognitionService.swift */; };
+		AA000029 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000042 /* AuthViewModel.swift */; };
+		AA000030 /* FoodLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000043 /* FoodLogViewModel.swift */; };
+		AA000031 /* WaterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000044 /* WaterViewModel.swift */; };
+		AA000032 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000045 /* LoginView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +33,19 @@
 		AA000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA000009 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AA00000A /* Routine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Routine.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA000033 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		AA000034 /* FoodEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodEntry.swift; sourceTree = "<group>"; };
+		AA000035 /* WaterEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterEntry.swift; sourceTree = "<group>"; };
+		AA000036 /* DailySummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailySummary.swift; sourceTree = "<group>"; };
+		AA000037 /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
+		AA000038 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		AA000039 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
+		AA000040 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		AA000041 /* FoodRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodRecognitionService.swift; sourceTree = "<group>"; };
+		AA000042 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		AA000043 /* FoodLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodLogViewModel.swift; sourceTree = "<group>"; };
+		AA000044 /* WaterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterViewModel.swift; sourceTree = "<group>"; };
+		AA000045 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,11 +72,64 @@
 			children = (
 				AA000005 /* RoutineApp.swift */,
 				AA000006 /* ContentView.swift */,
+				AA000046 /* Models */,
+				AA000047 /* Services */,
+				AA000048 /* ViewModels */,
+				AA000049 /* Views */,
 				AA000007 /* Assets.xcassets */,
 				AA00000F /* Preview Content */,
 				AA000008 /* Info.plist */,
 			);
 			path = Routine;
+			sourceTree = "<group>";
+		};
+		AA000046 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA000033 /* User.swift */,
+				AA000034 /* FoodEntry.swift */,
+				AA000035 /* WaterEntry.swift */,
+				AA000036 /* DailySummary.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA000047 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA000037 /* FirebaseManager.swift */,
+				AA000038 /* AuthService.swift */,
+				AA000039 /* FirestoreService.swift */,
+				AA000040 /* StorageService.swift */,
+				AA000041 /* FoodRecognitionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA000048 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				AA000042 /* AuthViewModel.swift */,
+				AA000043 /* FoodLogViewModel.swift */,
+				AA000044 /* WaterViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		AA000049 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA00004A /* Auth */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA00004A /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				AA000045 /* LoginView.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		AA00000E /* Products */ = {
@@ -140,6 +219,19 @@
 			files = (
 				AA000002 /* ContentView.swift in Sources */,
 				AA000001 /* RoutineApp.swift in Sources */,
+				AA000020 /* User.swift in Sources */,
+				AA000021 /* FoodEntry.swift in Sources */,
+				AA000022 /* WaterEntry.swift in Sources */,
+				AA000023 /* DailySummary.swift in Sources */,
+				AA000024 /* FirebaseManager.swift in Sources */,
+				AA000025 /* AuthService.swift in Sources */,
+				AA000026 /* FirestoreService.swift in Sources */,
+				AA000027 /* StorageService.swift in Sources */,
+				AA000028 /* FoodRecognitionService.swift in Sources */,
+				AA000029 /* AuthViewModel.swift in Sources */,
+				AA000030 /* FoodLogViewModel.swift in Sources */,
+				AA000031 /* WaterViewModel.swift in Sources */,
+				AA000032 /* LoginView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

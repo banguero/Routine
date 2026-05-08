@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var foodLogViewModel: FoodLogViewModel
     @StateObject private var waterViewModel: WaterViewModel
     
