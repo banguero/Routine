@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @StateObject private var foodLogViewModel: FoodLogViewModel
+    @StateObject private var waterViewModel: WaterViewModel
+    
     @State private var selectedCategory = 0
     @State private var selectedDay = 6 // Fri (0-indexed from Sat)
     @State private var selectedTab = 0
     @State private var showAddFoodSheet = false
+    @State private var showCamera = false
     
     // Haptic feedback generators
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
@@ -26,6 +31,18 @@ struct ContentView: View {
         ("Thu", "7"),
         ("Fri", "8")
     ]
+    
+    init() {
+        // Initialize ViewModels with mock user for now
+        // In production, this would use authViewModel.user
+        let mockUser = User(
+            id: "mock-user-id",
+            email: "test@example.com",
+            displayName: "Test User"
+        )
+        _foodLogViewModel = StateObject(wrappedValue: FoodLogViewModel(userId: mockUser.id!, user: mockUser))
+        _waterViewModel = StateObject(wrappedValue: WaterViewModel(userId: mockUser.id!))
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -71,9 +88,14 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $showAddFoodSheet) {
-            AddFoodSheet()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
+            AddFoodSheet(onScanFood: {
+                showCamera = true
+            })
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraView(foodLogViewModel: foodLogViewModel)
         }
     }
     
@@ -222,7 +244,7 @@ struct ContentView: View {
                             .frame(width: 70, height: 70)
                         
                         Circle()
-                            .trim(from: 0, to: 0.75)
+                            .trim(from: 0, to: progressRingValue)
                             .stroke(Color(red: 0.4, green: 0.65, blue: 0.95), style: StrokeStyle(lineWidth: 6, lineCap: .round))
                             .frame(width: 70, height: 70)
                             .rotationEffect(.degrees(-90))
@@ -231,7 +253,7 @@ struct ContentView: View {
                             Image(systemName: "flame.fill")
                                 .foregroundColor(Color(red: 0.4, green: 0.65, blue: 0.95))
                                 .font(.system(size: 14))
-                            Text("1800")
+                            Text("\(Int(caloriesRemaining))")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.black)
                                 .lineLimit(1)
@@ -257,8 +279,8 @@ struct ContentView: View {
                         icon: "dumbbell.fill",
                         iconColor: Color.purple,
                         label: "Protein",
-                        value: "130g",
-                        progress: 0.7,
+                        value: "\(Int(proteinRemaining))g",
+                        progress: proteinProgress,
                         color: Color.purple
                     )
                     
@@ -266,8 +288,8 @@ struct ContentView: View {
                         icon: "leaf.fill",
                         iconColor: Color.green,
                         label: "Carbs",
-                        value: "180g",
-                        progress: 0.6,
+                        value: "\(Int(carbsRemaining))g",
+                        progress: carbsProgress,
                         color: Color.green
                     )
                     
@@ -275,8 +297,8 @@ struct ContentView: View {
                         icon: "drop.fill",
                         iconColor: Color.orange,
                         label: "Fat",
-                        value: "60g",
-                        progress: 0.8,
+                        value: "\(Int(fatRemaining))g",
+                        progress: fatProgress,
                         color: Color.orange
                     )
                 }
@@ -300,6 +322,45 @@ struct ContentView: View {
                 .fill(Color.white)
                 .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
         )
+    }
+    
+    // MARK: - Computed Properties for Calories Card
+    
+    private var caloriesRemaining: Double {
+        foodLogViewModel.dailySummary?.caloriesRemaining ?? 1800
+    }
+    
+    private var proteinRemaining: Double {
+        foodLogViewModel.dailySummary?.proteinRemaining ?? 130
+    }
+    
+    private var carbsRemaining: Double {
+        foodLogViewModel.dailySummary?.carbsRemaining ?? 180
+    }
+    
+    private var fatRemaining: Double {
+        foodLogViewModel.dailySummary?.fatRemaining ?? 60
+    }
+    
+    private var progressRingValue: Double {
+        guard let summary = foodLogViewModel.dailySummary else { return 0.75 }
+        let progress = summary.totalCalories / Double(summary.calorieGoal)
+        return min(max(1.0 - progress, 0.0), 1.0)
+    }
+    
+    private var proteinProgress: Double {
+        guard let summary = foodLogViewModel.dailySummary else { return 0.7 }
+        return min(summary.totalProtein / Double(summary.proteinGoal), 1.0)
+    }
+    
+    private var carbsProgress: Double {
+        guard let summary = foodLogViewModel.dailySummary else { return 0.6 }
+        return min(summary.totalCarbs / Double(summary.carbsGoal), 1.0)
+    }
+    
+    private var fatProgress: Double {
+        guard let summary = foodLogViewModel.dailySummary else { return 0.8 }
+        return min(summary.totalFat / Double(summary.fatGoal), 1.0)
     }
     
     private func macroView(icon: String, iconColor: Color, label: String, value: String, progress: Double, color: Color) -> some View {
@@ -343,7 +404,7 @@ struct ContentView: View {
     private var foodSection: some View {
         VStack(spacing: 14) {
             HStack {
-                Text("Food for Fri, May 8")
+                Text("Food for Today")
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.black)
                     .lineLimit(1)
@@ -367,24 +428,36 @@ struct ContentView: View {
                 }
             }
             
-            VStack(spacing: 10) {
-                Image(systemName: "fork.knife")
-                    .font(.system(size: 42))
-                    .foregroundColor(.gray.opacity(0.4))
-                    .padding(.top, 30)
-                
-                Text("No entries yet")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.gray)
-                
-                Text("Tap + to scan or describe your first food item")
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 30)
+            if foodLogViewModel.foodEntries.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "fork.knife")
+                        .font(.system(size: 42))
+                        .foregroundColor(.gray.opacity(0.4))
+                        .padding(.top, 30)
+                    
+                    Text("No entries yet")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.gray)
+                    
+                    Text("Tap + to scan or describe your first food item")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 30)
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(foodLogViewModel.foodEntries) { entry in
+                        FoodEntryRow(entry: entry) {
+                            Task {
+                                await foodLogViewModel.deleteFoodEntry(id: entry.id ?? "")
+                            }
+                        }
+                    }
+                }
             }
-            .frame(maxWidth: .infinity)
         }
     }
     
@@ -397,7 +470,7 @@ struct ContentView: View {
                     .foregroundColor(.gray)
                 
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text("0")
+                    Text("\(Int(waterViewModel.totalWaterOz))")
                         .font(.system(size: 42, weight: .bold))
                         .foregroundColor(.black)
                     Text("oz")
@@ -411,6 +484,9 @@ struct ContentView: View {
             
             Button(action: {
                 impactLight.impactOccurred()
+                Task {
+                    await waterViewModel.addWater(amountOz: 8)
+                }
             }) {
                 ZStack {
                     Circle()
@@ -477,11 +553,86 @@ struct ContentView: View {
     }
 }
 
+// MARK: - Food Entry Row
+struct FoodEntryRow: View {
+    let entry: FoodEntry
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Food image or placeholder
+            if entry.imageUrl != nil {
+                AsyncImage(url: URL(string: entry.imageUrl!)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.2))
+                }
+                .frame(width: 50, height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.blue.opacity(0.1))
+                    .frame(width: 50, height: 50)
+                    .overlay(
+                        Image(systemName: "fork.knife")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 20))
+                    )
+            }
+            
+            // Food details
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(entry.name)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.black)
+                    
+                    if entry.aiRecognized {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 12))
+                    }
+                }
+                
+                Text("\(Int(entry.calories)) cal • P: \(Int(entry.protein))g • C: \(Int(entry.carbs))g • F: \(Int(entry.fat))g")
+                    .font(.system(size: 13))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            // Meal type badge
+            Text(entry.mealType.rawValue)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.blue)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.blue.opacity(0.1))
+                .clipShape(Capsule())
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+        )
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive, action: onDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+}
+
 // MARK: - Add Food Sheet
 struct AddFoodSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var showCamera = false
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    
+    let onScanFood: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -510,7 +661,8 @@ struct AddFoodSheet: View {
                     subtitle: "Take or upload a photo of your food",
                     action: {
                         impactLight.impactOccurred()
-                        showCamera = true
+                        dismiss()
+                        onScanFood()
                     }
                 )
                 
@@ -543,9 +695,6 @@ struct AddFoodSheet: View {
             Spacer(minLength: 20)
         }
         .background(Color(red: 0.96, green: 0.96, blue: 0.98))
-        .fullScreenCover(isPresented: $showCamera) {
-            CameraView()
-        }
     }
 }
 
@@ -613,7 +762,14 @@ struct CameraView: View {
     @State private var showImagePicker = false
     @State private var sourceType: UIImagePickerController.SourceType = .camera
     @State private var scanMode: ScanMode = .camera
+    @State private var isProcessing = false
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    
+    let foodLogViewModel: FoodLogViewModel?
+    
+    init(foodLogViewModel: FoodLogViewModel? = nil) {
+        self.foodLogViewModel = foodLogViewModel
+    }
     
     enum ScanMode {
         case camera
@@ -762,16 +918,35 @@ struct CameraView: View {
                         
                         Button(action: {
                             impactLight.impactOccurred()
-                            dismiss()
+                            if let image = selectedImage, let viewModel = foodLogViewModel {
+                                isProcessing = true
+                                Task {
+                                    await viewModel.addFoodWithAI(image: image)
+                                    isProcessing = false
+                                    dismiss()
+                                }
+                            } else {
+                                dismiss()
+                            }
                         }) {
-                            Text("Use Photo")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(Color.white)
-                                .cornerRadius(12)
+                            if isProcessing {
+                                ProgressView()
+                                    .tint(.black)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .background(Color.white)
+                                    .cornerRadius(12)
+                            } else {
+                                Text("Use Photo")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.black)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .background(Color.white)
+                                    .cornerRadius(12)
+                            }
                         }
+                        .disabled(isProcessing)
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 40)
