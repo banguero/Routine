@@ -38,6 +38,8 @@ A beautiful iOS app for tracking meals, calories, and water intake with AI food 
 4. Add the file to your Xcode project (drag into Routine/ folder)
 5. Make sure "Copy items if needed" is checked
 
+**Note:** `GoogleService-Info.plist` is gitignored for security. A template is available at `GoogleService-Info.plist.template` for reference.
+
 ### 3. Add Firebase SDK via Swift Package Manager
 
 1. In Xcode: File → Add Package Dependencies
@@ -132,6 +134,14 @@ import FirebaseCore
 // In init():
 FirebaseApp.configure()
 ```
+
+## Security Notes
+
+- `GoogleService-Info.plist` is **gitignored** and should never be committed to public repositories
+- This file contains your Firebase project configuration and API keys
+- While the API key in this file is a public identifier (not a secret), it's best practice to keep it private
+- Firebase security comes from **Security Rules** in Firestore and Storage, not from hiding this file
+- For production apps, configure Security Rules to restrict access to authenticated users only (examples provided above)
 
 **Routine/Services/FirebaseManager.swift:**
 - Uncomment the Firebase implementation

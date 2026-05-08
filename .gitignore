@@ -1,4 +1,56 @@
+# macOS
 .DS_Store
-Routine.xcodeproj/project.xcworkspace/xcuserdata/banguero.xcuserdatad/UserInterfaceState.xcuserstate
+.AppleDouble
+.LSOverride
+._*
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# CocoaPods
+Pods/
+*.xcworkspace
+!default.xcworkspace
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Firebase
+GoogleService-Info.plist
+**/GoogleService-Info.plist
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment variables
+.env
+*.env
+.env.local
+.env.*.local
+
+# OpenCode
+.opencode/
 .opencode/plans/1778263578342-stellar-engine.md
-Routine.xcodeproj/project.xcworkspace/xcuserdata/banguero.xcuserdatad/UserInterfaceState.xcuserstate
