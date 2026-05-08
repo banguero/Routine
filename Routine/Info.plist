@@ -22,6 +22,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Routine needs camera access to scan your food and track calories. Take photos of your meals to automatically identify food items and log their nutritional information.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Routine needs photo library access to let you select food photos from your gallery. Choose existing meal photos to scan and track their nutritional content.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
