@@ -50,31 +50,24 @@ struct ContentView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Header
-                    headerView
-                    
-                    // Category tabs
-                    categoryTabs
-                    
-                    // Calendar strip
-                    calendarStrip
-                    
-                    // Main content
-                    ScrollView {
-                        VStack(spacing: 18) {
-                            // Calories card
-                            caloriesCard
-                            
-                            // Food section
-                            foodSection
-                            
-                            // Water section
-                            waterSection
-                            
-                            Spacer(minLength: 90)
+                    // Tab content
+                    Group {
+                        switch selectedTab {
+                        case 0:
+                            // Log tab
+                            logTabView
+                        case 1:
+                            // Stats tab
+                            statsTabView
+                        case 2:
+                            // AI Coach tab
+                            aiCoachTabView
+                        case 3:
+                            // Settings tab
+                            SettingsView()
+                        default:
+                            logTabView
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
                     }
                 }
                 
@@ -100,6 +93,84 @@ struct ContentView: View {
             if let user = authViewModel.user, let userId = user.id {
                 foodLogViewModel.updateUser(userId: userId, user: user)
                 waterViewModel.updateUserId(userId)
+            }
+        }
+    }
+    
+    // MARK: - Log Tab View
+    private var logTabView: some View {
+        VStack(spacing: 0) {
+            // Header
+            headerView
+            
+            // Category tabs
+            categoryTabs
+            
+            // Calendar strip
+            calendarStrip
+            
+            // Main content
+            ScrollView {
+                VStack(spacing: 18) {
+                    // Calories card
+                    caloriesCard
+                    
+                    // Food section
+                    foodSection
+                    
+                    // Water section
+                    waterSection
+                    
+                    Spacer(minLength: 90)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+            }
+        }
+    }
+    
+    // MARK: - Stats Tab View
+    private var statsTabView: some View {
+        VStack(spacing: 0) {
+            headerView
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    Text("Stats")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.black)
+                        .padding(.top, 20)
+                    
+                    Text("Coming soon")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                    
+                    Spacer(minLength: 90)
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+    }
+    
+    // MARK: - AI Coach Tab View
+    private var aiCoachTabView: some View {
+        VStack(spacing: 0) {
+            headerView
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    Text("AI Coach")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.black)
+                        .padding(.top, 20)
+                    
+                    Text("Coming soon")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                    
+                    Spacer(minLength: 90)
+                }
+                .padding(.horizontal, 16)
             }
         }
     }
@@ -756,8 +827,126 @@ struct AddFoodOption: View {
     }
 }
 
+// MARK: - Settings View
+struct SettingsView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                HStack(spacing: 10) {
+                    // Infinity logo
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.blue, Color.cyan, Color.green, Color.yellow],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: 32, height: 32)
+                            .mask {
+                                Image(systemName: "infinity")
+                                    .font(.system(size: 20, weight: .bold))
+                            }
+                    }
+                    
+                    Text("Settings")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.black)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 16)
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    // User info section
+                    if let user = authViewModel.user {
+                        VStack(spacing: 16) {
+                            // Profile card
+                            VStack(spacing: 12) {
+                                Image(systemName: "person.circle.fill")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(Color(red: 0.4, green: 0.65, blue: 0.95))
+                                
+                                Text(user.displayName ?? "User")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.black)
+                                
+                                Text(user.email)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.vertical, 24)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white)
+                                    .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+                            )
+                        }
+                        .padding(.horizontal, 16)
+                    }
+                    
+                    // Account section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Account")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .textCase(.uppercase)
+                            .padding(.horizontal, 16)
+                        
+                        VStack(spacing: 0) {
+                            // Sign Out button
+                            Button(action: {
+                                impactLight.impactOccurred()
+                                authViewModel.signOut()
+                            }) {
+                                HStack {
+                                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                                        .foregroundColor(.red)
+                                        .font(.system(size: 18))
+                                        .frame(width: 24)
+                                    
+                                    Text("Sign Out")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.red)
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 14)
+                            }
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white)
+                                .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+                        )
+                        .padding(.horizontal, 16)
+                    }
+                    
+                    Spacer(minLength: 90)
+                }
+                .padding(.top, 16)
+            }
+        }
+        .background(Color(red: 0.95, green: 0.95, blue: 0.97))
+    }
+}
+
 #Preview {
     ContentView()
+        .environmentObject(AuthViewModel())
 }
 
 // MARK: - Camera View
