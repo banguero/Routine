@@ -480,6 +480,7 @@ struct ContentView: View {
 // MARK: - Add Food Sheet
 struct AddFoodSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showCamera = false
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
     
     var body: some View {
@@ -509,7 +510,7 @@ struct AddFoodSheet: View {
                     subtitle: "Take or upload a photo of your food",
                     action: {
                         impactLight.impactOccurred()
-                        dismiss()
+                        showCamera = true
                     }
                 )
                 
@@ -542,6 +543,9 @@ struct AddFoodSheet: View {
             Spacer(minLength: 20)
         }
         .background(Color(red: 0.96, green: 0.96, blue: 0.98))
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraView()
+        }
     }
 }
 
@@ -600,4 +604,247 @@ struct AddFoodOption: View {
 
 #Preview {
     ContentView()
+}
+
+// MARK: - Camera View
+struct CameraView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedImage: UIImage?
+    @State private var showImagePicker = false
+    @State private var sourceType: UIImagePickerController.SourceType = .camera
+    @State private var scanMode: ScanMode = .camera
+    private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    
+    enum ScanMode {
+        case camera
+        case library
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Top bar
+                HStack {
+                    Button(action: {
+                        impactLight.impactOccurred()
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                            .font(.system(size: 18, weight: .medium))
+                            .frame(width: 32, height: 32)
+                            .background(Color.white.opacity(0.2))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Text("Scan Food")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    // Placeholder for symmetry
+                    Color.clear.frame(width: 32, height: 32)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+                
+                // Mode selector
+                HStack(spacing: 0) {
+                    Button(action: {
+                        impactLight.impactOccurred()
+                        scanMode = .camera
+                        sourceType = .camera
+                        showImagePicker = true
+                    }) {
+                        Text("Scan Food")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(scanMode == .camera ? .black : .white.opacity(0.7))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule()
+                                    .fill(scanMode == .camera ? Color.white : Color.clear)
+                            )
+                    }
+                    
+                    Button(action: {
+                        impactLight.impactOccurred()
+                        scanMode = .library
+                        sourceType = .photoLibrary
+                        showImagePicker = true
+                    }) {
+                        Text("Library")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(scanMode == .library ? .black : .white.opacity(0.7))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule()
+                                    .fill(scanMode == .library ? Color.white : Color.clear)
+                            )
+                    }
+                }
+                .padding(4)
+                .background(Color.white.opacity(0.15))
+                .clipShape(Capsule())
+                .padding(.horizontal, 40)
+                .padding(.bottom, 30)
+                
+                Spacer()
+                
+                // Camera preview area
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 400)
+                        .cornerRadius(12)
+                        .padding(.horizontal, 20)
+                } else {
+                    VStack(spacing: 20) {
+                        Image(systemName: scanMode == .camera ? "camera.fill" : "photo.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.white.opacity(0.3))
+                        
+                        Text(scanMode == .camera ? "Position food in frame" : "Select a photo from your library")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: 400)
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(12)
+                    .padding(.horizontal, 20)
+                    .onTapGesture {
+                        showImagePicker = true
+                    }
+                }
+                
+                Spacer()
+                
+                // Capture button (only show for camera mode and when no image selected)
+                if selectedImage == nil && scanMode == .camera {
+                    Button(action: {
+                        impactLight.impactOccurred()
+                        showImagePicker = true
+                    }) {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white, lineWidth: 4)
+                                .frame(width: 80, height: 80)
+                            
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 70, height: 70)
+                        }
+                    }
+                    .padding(.bottom, 40)
+                } else if selectedImage != nil {
+                    // Action buttons when image is selected
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            impactLight.impactOccurred()
+                            selectedImage = nil
+                        }) {
+                            Text("Retake")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .background(Color.white.opacity(0.2))
+                                .cornerRadius(12)
+                        }
+                        
+                        Button(action: {
+                            impactLight.impactOccurred()
+                            dismiss()
+                        }) {
+                            Text("Use Photo")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .background(Color.white)
+                                .cornerRadius(12)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 40)
+                } else {
+                    // Library mode - show select button
+                    Button(action: {
+                        impactLight.impactOccurred()
+                        showImagePicker = true
+                    }) {
+                        HStack {
+                            Image(systemName: "photo.fill")
+                            Text("Choose from Library")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 40)
+                }
+            }
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker(selectedImage: $selectedImage, sourceType: sourceType)
+                .ignoresSafeArea()
+        }
+        .onAppear {
+            // Auto-open camera when view appears in camera mode
+            if scanMode == .camera {
+                showImagePicker = true
+            }
+        }
+    }
+}
+
+// MARK: - Image Picker
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImage: UIImage?
+    @Environment(\.dismiss) private var dismiss
+    let sourceType: UIImagePickerController.SourceType
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = sourceType
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.selectedImage = image
+            }
+            parent.dismiss()
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
+    }
 }
