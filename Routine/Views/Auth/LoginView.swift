@@ -43,6 +43,17 @@ struct LoginView: View {
                 
                 Spacer()
                 
+                // Features
+                VStack(spacing: 20) {
+                    FeatureRow(icon: "camera.fill", text: "Scan food with AI")
+                    FeatureRow(icon: "chart.bar.fill", text: "Track calories & macros")
+                    FeatureRow(icon: "drop.fill", text: "Monitor water intake")
+                    FeatureRow(icon: "icloud.fill", text: "Sync across devices")
+                }
+                .padding(.horizontal, 40)
+                
+                Spacer()
+                
                 // Sign in button
                 VStack(spacing: 16) {
                     SignInWithAppleButton(
@@ -67,6 +78,26 @@ struct LoginView: View {
                 
                 Spacer()
             }
+        }
+    }
+}
+
+struct FeatureRow: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .foregroundColor(Color(red: 0.4, green: 0.65, blue: 0.95))
+                .font(.system(size: 22))
+                .frame(width: 30)
+            
+            Text(text)
+                .font(.system(size: 16))
+                .foregroundColor(.black)
+            
+            Spacer()
         }
     }
 }
