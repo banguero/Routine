@@ -4,6 +4,7 @@ struct ContentView: View {
     @State private var selectedCategory = 0
     @State private var selectedDay = 6 // Fri (0-indexed from Sat)
     @State private var selectedTab = 0
+    @State private var showAddFoodSheet = false
     
     // Haptic feedback generators
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
@@ -68,6 +69,11 @@ struct ContentView: View {
                         .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 0 : 8)
                 }
             }
+        }
+        .sheet(isPresented: $showAddFoodSheet) {
+            AddFoodSheet()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
     
@@ -347,6 +353,7 @@ struct ContentView: View {
                 
                 Button(action: {
                     impactMedium.impactOccurred()
+                    showAddFoodSheet = true
                 }) {
                     ZStack {
                         Circle()
@@ -467,6 +474,127 @@ struct ContentView: View {
                     .fill(isSelected ? Color(red: 0.4, green: 0.65, blue: 0.95).opacity(0.1) : Color.clear)
             )
         }
+    }
+}
+
+// MARK: - Add Food Sheet
+struct AddFoodSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            VStack(spacing: 8) {
+                Text("Add Food")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(.black)
+                    .padding(.top, 8)
+                
+                Text("Choose how you'd like to add the food item")
+                    .font(.system(size: 15))
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
+            
+            // Options
+            VStack(spacing: 12) {
+                AddFoodOption(
+                    icon: "camera.fill",
+                    iconColor: .blue,
+                    iconBackground: Color.blue.opacity(0.12),
+                    title: "Scan Food",
+                    subtitle: "Take or upload a photo of your food",
+                    action: {
+                        impactLight.impactOccurred()
+                        dismiss()
+                    }
+                )
+                
+                AddFoodOption(
+                    icon: "bookmark.fill",
+                    iconColor: .orange,
+                    iconBackground: Color.orange.opacity(0.12),
+                    title: "Saved Food",
+                    subtitle: "Choose from your saved food items",
+                    action: {
+                        impactLight.impactOccurred()
+                        dismiss()
+                    }
+                )
+                
+                AddFoodOption(
+                    icon: "mic.fill",
+                    iconColor: .green,
+                    iconBackground: Color.green.opacity(0.12),
+                    title: "Describe Food",
+                    subtitle: "Tell us what you ate",
+                    action: {
+                        impactLight.impactOccurred()
+                        dismiss()
+                    }
+                )
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer(minLength: 20)
+        }
+        .background(Color(red: 0.96, green: 0.96, blue: 0.98))
+    }
+}
+
+struct AddFoodOption: View {
+    let icon: String
+    let iconColor: Color
+    let iconBackground: Color
+    let title: String
+    let subtitle: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(iconBackground)
+                        .frame(width: 48, height: 48)
+                    
+                    Image(systemName: icon)
+                        .foregroundColor(iconColor)
+                        .font(.system(size: 20))
+                }
+                
+                // Text
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.black)
+                    
+                    Text(subtitle)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Spacer()
+                
+                // Chevron
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray.opacity(0.4))
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white)
+                    .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
