@@ -489,7 +489,7 @@ struct AddFoodSheet: View {
                 Text("Add Food")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.black)
-                    .padding(.top, 8)
+                    .padding(.top, 20)
                 
                 Text("Choose how you'd like to add the food item")
                     .font(.system(size: 15))
