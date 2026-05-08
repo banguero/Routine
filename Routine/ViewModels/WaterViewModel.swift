@@ -15,9 +15,13 @@ class WaterViewModel: ObservableObject {
     init(userId: String) {
         self.userId = userId
         subscribeToWaterEntries()
-        
-        // Load mock data for development
-        loadMockData()
+    }
+    
+    func updateUserId(_ userId: String) {
+        self.userId = userId
+        // Resubscribe with new user
+        cancellables.removeAll()
+        subscribeToWaterEntries()
     }
     
     func subscribeToWaterEntries(date: Date = Date()) {

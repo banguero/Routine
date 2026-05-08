@@ -2,9 +2,6 @@
 // Requires FirebaseAuth and AuthenticationServices
 
 import Foundation
-
-// Uncomment when Firebase is added:
-/*
 import FirebaseAuth
 import AuthenticationServices
 import CryptoKit
@@ -103,11 +100,4 @@ enum AuthError: Error {
     case invalidState
     case invalidCredential
     case signInFailed
-}
-*/
-
-// Temporary stub
-class AuthService {
-    func getCurrentUser() -> Any? { return nil }
-    func signOut() throws {}
 }

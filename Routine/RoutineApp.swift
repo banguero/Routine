@@ -1,8 +1,13 @@
 import SwiftUI
+import FirebaseCore
 
 @main
 struct RoutineApp: App {
     @StateObject private var authViewModel = AuthViewModel()
+    
+    init() {
+        FirebaseApp.configure()
+    }
     
     var body: some Scene {
         WindowGroup {

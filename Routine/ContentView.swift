@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var foodLogViewModel: FoodLogViewModel
     @StateObject private var waterViewModel: WaterViewModel
     
@@ -32,15 +33,14 @@ struct ContentView: View {
     ]
     
     init() {
-        // Initialize ViewModels with mock user for now
-        // In production, this would use authViewModel.user
-        let mockUser = User(
-            id: "mock-user-id",
-            email: "test@example.com",
-            displayName: "Test User"
+        // Initialize with placeholder - will be updated in onAppear
+        let placeholderUser = User(
+            id: "placeholder",
+            email: "",
+            displayName: ""
         )
-        _foodLogViewModel = StateObject(wrappedValue: FoodLogViewModel(userId: mockUser.id!, user: mockUser))
-        _waterViewModel = StateObject(wrappedValue: WaterViewModel(userId: mockUser.id!))
+        _foodLogViewModel = StateObject(wrappedValue: FoodLogViewModel(userId: "placeholder", user: placeholderUser))
+        _waterViewModel = StateObject(wrappedValue: WaterViewModel(userId: "placeholder"))
     }
     
     var body: some View {
@@ -95,6 +95,12 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView(foodLogViewModel: foodLogViewModel)
+        }
+        .onAppear {
+            if let user = authViewModel.user, let userId = user.id {
+                foodLogViewModel.updateUser(userId: userId, user: user)
+                waterViewModel.updateUserId(userId)
+            }
         }
     }
     

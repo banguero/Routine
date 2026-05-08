@@ -1,11 +1,6 @@
 // FirebaseManager.swift
-// This file requires Firebase SDK to be added via Swift Package Manager
-// Add https://github.com/firebase/firebase-ios-sdk to your project
 
 import Foundation
-
-// Uncomment when Firebase is added:
-/*
 import FirebaseFirestore
 import FirebaseStorage
 import FirebaseAuth
@@ -28,11 +23,4 @@ class FirebaseManager {
         settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
         db.settings = settings
     }
-}
-*/
-
-// Temporary stub until Firebase is added
-class FirebaseManager {
-    static let shared = FirebaseManager()
-    private init() {}
 }

@@ -19,35 +19,30 @@ class AuthViewModel: NSObject, ObservableObject {
     }
     
     func checkAuthStatus() {
-        // TODO: Implement with Firebase Auth
-        // For now, simulate authenticated state for development
-        #if DEBUG
-        // Mock user for development
-        self.user = User(
-            id: "mock-user-id",
-            email: "test@example.com",
-            displayName: "Test User",
-            createdAt: Date()
-        )
-        self.isAuthenticated = true
-        #else
-        if authService.getCurrentUser() != nil {
+        if let firebaseUser = authService.getCurrentUser() {
             // Load user from Firestore
             Task {
                 do {
-                    // let user = try await firestoreService.getUser(userId: firebaseUser.uid)
-                    // self.user = user
-                    // self.isAuthenticated = true
+                    let user = try await firestoreService.getUser(userId: firebaseUser.uid)
+                    self.user = user
+                    self.isAuthenticated = true
                 } catch {
-                    self.isAuthenticated = false
+                    // If user doesn't exist in Firestore, create a basic user object
+                    self.user = User(
+                        id: firebaseUser.uid,
+                        email: firebaseUser.email ?? "",
+                        displayName: firebaseUser.displayName,
+                        createdAt: Date()
+                    )
+                    self.isAuthenticated = true
                 }
             }
+        } else {
+            self.isAuthenticated = false
         }
-        #endif
     }
     
     func handleSignInWithApple(_ result: Result<ASAuthorization, Error>) {
-        // TODO: Implement Sign in with Apple
         isLoading = true
         
         switch result {
@@ -55,10 +50,13 @@ class AuthViewModel: NSObject, ObservableObject {
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
                 Task {
                     do {
-                        // let user = try await authService.signInWithApple(credential: appleIDCredential)
-                        // self.user = user
-                        // self.isAuthenticated = true
+                        let user = try await authService.signInWithApple(credential: appleIDCredential)
+                        self.user = user
+                        self.isAuthenticated = true
                         self.isLoading = false
+                        
+                        // Save user to Firestore
+                        try await firestoreService.updateUser(user)
                     } catch {
                         self.errorMessage = error.localizedDescription
                         self.isLoading = false

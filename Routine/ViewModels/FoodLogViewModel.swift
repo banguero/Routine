@@ -23,9 +23,14 @@ class FoodLogViewModel: ObservableObject {
         self.userId = userId
         self.user = user
         subscribeToFoodEntries()
-        
-        // Load mock data for development
-        loadMockData()
+    }
+    
+    func updateUser(userId: String, user: User) {
+        self.userId = userId
+        self.user = user
+        // Resubscribe with new user
+        cancellables.removeAll()
+        subscribeToFoodEntries()
     }
     
     func subscribeToFoodEntries(date: Date = Date()) {
