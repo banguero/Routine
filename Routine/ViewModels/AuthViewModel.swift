@@ -9,15 +9,15 @@ class AuthViewModel: NSObject, ObservableObject {
     @Published var isAuthenticated = false
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+
     private let authService = AuthService()
     private let firestoreService = FirestoreService()
-    
+
     override init() {
         super.init()
         checkAuthStatus()
     }
-    
+
     func checkAuthStatus() {
         if let firebaseUser = authService.getCurrentUser() {
             // Load user from Firestore
@@ -41,10 +41,16 @@ class AuthViewModel: NSObject, ObservableObject {
             self.isAuthenticated = false
         }
     }
-    
+
+    func prepareAppleSignInRequest(_ request: ASAuthorizationAppleIDRequest) {
+        let nonce = authService.generateNonce()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = authService.sha256(nonce)
+    }
+
     func handleSignInWithApple(_ result: Result<ASAuthorization, Error>) {
         isLoading = true
-        
+
         switch result {
         case .success(let authorization):
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
@@ -54,7 +60,7 @@ class AuthViewModel: NSObject, ObservableObject {
                         self.user = user
                         self.isAuthenticated = true
                         self.isLoading = false
-                        
+
                         // Save user to Firestore
                         try await firestoreService.updateUser(user)
                     } catch {
@@ -68,7 +74,7 @@ class AuthViewModel: NSObject, ObservableObject {
             self.isLoading = false
         }
     }
-    
+
     func signOut() {
         do {
             try authService.signOut()
