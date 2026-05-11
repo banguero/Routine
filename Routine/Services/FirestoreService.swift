@@ -12,7 +12,7 @@ class FirestoreService {
     
     func addFoodEntry(_ entry: FoodEntry) async throws {
         let docId = entry.id ?? UUID().uuidString
-        let data: [String: Any] = [
+        var data: [String: Any] = [
             "userId": entry.userId,
             "name": entry.name,
             "calories": entry.calories,
@@ -26,6 +26,32 @@ class FirestoreService {
             "confidence": entry.confidence as Any,
             "createdAt": Timestamp(date: entry.createdAt)
         ]
+        
+        // Add ingredients if present
+        if let ingredients = entry.ingredients, !ingredients.isEmpty {
+            let ingredientsData = ingredients.map { ingredient -> [String: Any] in
+                return [
+                    "id": ingredient.id as Any,
+                    "name": ingredient.name,
+                    "quantity": ingredient.quantity,
+                    "measurementType": ingredient.measurementType.rawValue,
+                    "calories": ingredient.calories,
+                    "protein": ingredient.protein,
+                    "carbs": ingredient.carbs,
+                    "fat": ingredient.fat,
+                    "sugar": ingredient.sugar,
+                    "fiber": ingredient.fiber,
+                    "sodium": ingredient.sodium
+                ]
+            }
+            data["ingredients"] = ingredientsData
+        }
+        
+        // Add optional nutritional info
+        data["sugar"] = entry.sugar as Any
+        data["fiber"] = entry.fiber as Any
+        data["sodium"] = entry.sodium as Any
+        
         try await db.collection("foodEntries").document(docId).setData(data)
     }
     
@@ -65,6 +91,37 @@ class FirestoreService {
             return nil
         }
         
+        // Parse ingredients if present
+        var ingredients: [Ingredient]?
+        if let ingredientsData = data["ingredients"] as? [[String: Any]] {
+            ingredients = ingredientsData.compactMap { dict in
+                guard let name = dict["name"] as? String,
+                      let quantity = dict["quantity"] as? Double,
+                      let measurementTypeRaw = dict["measurementType"] as? String,
+                      let measurementType = MeasurementType(rawValue: measurementTypeRaw),
+                      let calories = dict["calories"] as? Double,
+                      let protein = dict["protein"] as? Double,
+                      let carbs = dict["carbs"] as? Double,
+                      let fat = dict["fat"] as? Double else {
+                    return nil
+                }
+                
+                return Ingredient(
+                    id: dict["id"] as? String,
+                    name: name,
+                    quantity: quantity,
+                    measurementType: measurementType,
+                    calories: calories,
+                    protein: protein,
+                    carbs: carbs,
+                    fat: fat,
+                    sugar: dict["sugar"] as? Double ?? 0,
+                    fiber: dict["fiber"] as? Double ?? 0,
+                    sodium: dict["sodium"] as? Double ?? 0
+                )
+            }
+        }
+        
         return FoodEntry(
             id: document.documentID,
             userId: userId,
@@ -78,7 +135,11 @@ class FirestoreService {
             imageUrl: data["imageUrl"] as? String,
             aiRecognized: aiRecognized,
             confidence: data["confidence"] as? Double,
-            createdAt: createdAtTimestamp.dateValue()
+            createdAt: createdAtTimestamp.dateValue(),
+            ingredients: ingredients,
+            sugar: data["sugar"] as? Double,
+            fiber: data["fiber"] as? Double,
+            sodium: data["sodium"] as? Double
         )
     }
     

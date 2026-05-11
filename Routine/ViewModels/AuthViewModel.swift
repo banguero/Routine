@@ -84,4 +84,23 @@ class AuthViewModel: NSObject, ObservableObject {
             self.errorMessage = error.localizedDescription
         }
     }
+    
+    // MARK: - Test Login (for development)
+    func signInForTesting() {
+        // Create a test user for development purposes
+        self.user = User(
+            id: "test_user_123",
+            email: "test@routine.app",
+            displayName: "Test User",
+            appleUserId: "test_apple_id",
+            createdAt: Date(),
+            dailyCalorieGoal: 2000,
+            dailyProteinGoal: 150,
+            dailyCarbsGoal: 250,
+            dailyFatGoal: 65,
+            dailyWaterGoalOz: 64
+        )
+        self.isAuthenticated = true
+        self.errorMessage = nil
+    }
 }

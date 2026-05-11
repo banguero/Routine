@@ -39,10 +39,15 @@ class FoodLogViewModel: ObservableObject {
             .sink(receiveCompletion: { completion in
                 if case .failure(let error) = completion {
                     self.errorMessage = error.localizedDescription
+                    // Load mock data on error (e.g., for test user)
+                    self.loadMockData()
                 }
             }, receiveValue: { entries in
                 if !entries.isEmpty {
                     self.foodEntries = entries
+                } else {
+                    // Load mock data if no entries found (e.g., for test user)
+                    self.loadMockData()
                 }
                 self.updateDailySummary()
             })
@@ -90,30 +95,100 @@ class FoodLogViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            // Recognize food using AI
-            let recognized = try await recognitionService.recognizeFood(from: image)
+            // Recognize meal using AI (returns ingredients)
+            let recognizedMeal = try await recognitionService.recognizeMeal(from: image)
             
             // Upload image
             let imageUrl = try await storageService.uploadFoodImage(image, userId: userId)
             
-            // Create entry
-            let entry = FoodEntry(
+            // Create entry with ingredients
+            var entry = FoodEntry(
                 userId: userId,
-                name: recognized.name,
-                calories: recognized.calories,
-                protein: recognized.protein,
-                carbs: recognized.carbs,
-                fat: recognized.fat,
+                name: recognizedMeal.name,
+                calories: recognizedMeal.totalCalories,
+                protein: recognizedMeal.totalProtein,
+                carbs: recognizedMeal.totalCarbs,
+                fat: recognizedMeal.totalFat,
                 mealType: mealType,
                 date: Date(),
                 imageUrl: imageUrl,
                 aiRecognized: true,
-                confidence: recognized.confidence
+                confidence: recognizedMeal.confidence,
+                ingredients: recognizedMeal.ingredients
+            )
+            
+            // Calculate additional nutrients from ingredients
+            entry.updateMacrosFromIngredients()
+            
+            // Add to local array immediately
+            foodEntries.insert(entry, at: 0)
+            updateDailySummary()
+            
+            // Save to Firestore
+            try await firestoreService.addFoodEntry(entry)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func addMealWithIngredients(name: String, ingredients: [Ingredient], 
+                                mealType: MealType, image: UIImage? = nil) async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            var imageUrl: String?
+            if let image = image {
+                imageUrl = try await storageService.uploadFoodImage(image, userId: userId)
+            }
+            
+            // Calculate totals from ingredients
+            let totalCalories = ingredients.reduce(0) { $0 + $1.calories }
+            let totalProtein = ingredients.reduce(0) { $0 + $1.protein }
+            let totalCarbs = ingredients.reduce(0) { $0 + $1.carbs }
+            let totalFat = ingredients.reduce(0) { $0 + $1.fat }
+            let totalSugar = ingredients.reduce(0) { $0 + $1.sugar }
+            let totalFiber = ingredients.reduce(0) { $0 + $1.fiber }
+            let totalSodium = ingredients.reduce(0) { $0 + $1.sodium }
+            
+            let entry = FoodEntry(
+                userId: userId,
+                name: name,
+                calories: totalCalories,
+                protein: totalProtein,
+                carbs: totalCarbs,
+                fat: totalFat,
+                mealType: mealType,
+                date: Date(),
+                imageUrl: imageUrl,
+                aiRecognized: false,
+                ingredients: ingredients,
+                sugar: totalSugar,
+                fiber: totalFiber,
+                sodium: totalSodium
             )
             
             // Add to local array immediately
             foodEntries.insert(entry, at: 0)
             updateDailySummary()
+            
+            // Save to Firestore
+            try await firestoreService.addFoodEntry(entry)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func updateFoodEntry(_ entry: FoodEntry) async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            // Update local array
+            if let index = foodEntries.firstIndex(where: { $0.id == entry.id }) {
+                foodEntries[index] = entry
+                updateDailySummary()
+            }
             
             // Save to Firestore
             try await firestoreService.addFoodEntry(entry)
@@ -165,16 +240,25 @@ class FoodLogViewModel: ObservableObject {
                 FoodEntry(
                     id: "1",
                     userId: userId,
-                    name: "Grilled Chicken Salad",
-                    calories: 350,
-                    protein: 35,
-                    carbs: 15,
-                    fat: 18,
+                    name: "Grilled Lamb & Chicken",
+                    calories: 525,
+                    protein: 55,
+                    carbs: 0,
+                    fat: 33,
                     mealType: .lunch,
                     date: Date(),
                     aiRecognized: true,
-                    confidence: 0.85,
-                    createdAt: Date()
+                    confidence: 0.88,
+                    createdAt: Date(),
+                    ingredients: [
+                        Ingredient.sampleLamb(),
+                        Ingredient.sampleChicken(),
+                        Ingredient.sampleOliveOil(),
+                        Ingredient.sampleSalt()
+                    ],
+                    sugar: 0,
+                    fiber: 0,
+                    sodium: 725
                 ),
                 FoodEntry(
                     id: "2",
@@ -188,7 +272,38 @@ class FoodLogViewModel: ObservableObject {
                     date: Date().addingTimeInterval(-3600),
                     aiRecognized: true,
                     confidence: 0.92,
-                    createdAt: Date().addingTimeInterval(-3600)
+                    createdAt: Date().addingTimeInterval(-3600),
+                    ingredients: [
+                        Ingredient(
+                            id: "5",
+                            name: "Greek yogurt (1 cup)",
+                            quantity: 1.0,
+                            measurementType: .servings,
+                            calories: 130,
+                            protein: 12,
+                            carbs: 9,
+                            fat: 4,
+                            sugar: 6,
+                            fiber: 0,
+                            sodium: 65
+                        ),
+                        Ingredient(
+                            id: "6",
+                            name: "Mixed berries (0.5 cup)",
+                            quantity: 1.0,
+                            measurementType: .servings,
+                            calories: 50,
+                            protein: 3,
+                            carbs: 13,
+                            fat: 0,
+                            sugar: 8,
+                            fiber: 3,
+                            sodium: 2
+                        )
+                    ],
+                    sugar: 14,
+                    fiber: 3,
+                    sodium: 67
                 )
             ]
             updateDailySummary()

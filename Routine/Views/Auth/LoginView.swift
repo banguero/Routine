@@ -56,6 +56,14 @@ struct LoginView: View {
 
                 // Sign in button
                 VStack(spacing: 16) {
+                    if let errorMessage = authViewModel.errorMessage {
+                        Text(errorMessage)
+                            .font(.system(size: 14))
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
+                    
                     SignInWithAppleButton(
                         onRequest: { request in
                             authViewModel.prepareAppleSignInRequest(request)
@@ -67,7 +75,31 @@ struct LoginView: View {
                     .signInWithAppleButtonStyle(.black)
                     .frame(height: 50)
                     .cornerRadius(12)
-
+                    .disabled(authViewModel.isLoading)
+                    .opacity(authViewModel.isLoading ? 0.6 : 1.0)
+                    
+                    if authViewModel.isLoading {
+                        ProgressView()
+                            .tint(.black)
+                    }
+                    
+                    // Test Login Button (for development)
+                    Button(action: {
+                        authViewModel.signInForTesting()
+                    }) {
+                        HStack {
+                            Image(systemName: "person.fill.badge.plus")
+                            Text("Continue as Test User")
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(.blue)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    .disabled(authViewModel.isLoading)
+                    
                     Text("By signing in, you agree to our Terms of Service and Privacy Policy")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
@@ -80,6 +112,11 @@ struct LoginView: View {
             }
         }
     }
+}
+
+#Preview {
+    LoginView()
+        .environmentObject(AuthViewModel())
 }
 
 struct FeatureRow: View {
@@ -100,9 +137,4 @@ struct FeatureRow: View {
             Spacer()
         }
     }
-}
-
-#Preview {
-    LoginView()
-        .environmentObject(AuthViewModel())
 }

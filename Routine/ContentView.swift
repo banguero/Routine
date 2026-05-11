@@ -10,6 +10,8 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var showAddFoodSheet = false
     @State private var showCamera = false
+    @State private var selectedEntry: FoodEntry?
+    @State private var showingMealDetail = false
     
     // Haptic feedback generators
     private let impactLight = UIImpactFeedbackGenerator(style: .light)
@@ -90,6 +92,12 @@ struct ContentView: View {
             CameraView(foodLogViewModel: foodLogViewModel)
         }
         .onAppear {
+            if let user = authViewModel.user, let userId = user.id {
+                foodLogViewModel.updateUser(userId: userId, user: user)
+                waterViewModel.updateUserId(userId)
+            }
+        }
+        .onChange(of: authViewModel.user?.id) { _ in
             if let user = authViewModel.user, let userId = user.id {
                 foodLogViewModel.updateUser(userId: userId, user: user)
                 waterViewModel.updateUserId(userId)
@@ -531,8 +539,17 @@ struct ContentView: View {
                                 await foodLogViewModel.deleteFoodEntry(id: entry.id ?? "")
                             }
                         }
+                        .onTapGesture {
+                            selectedEntry = entry
+                            showingMealDetail = true
+                        }
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showingMealDetail) {
+            if let entry = selectedEntry {
+                MealDetailView(entry: entry, foodLogViewModel: foodLogViewModel)
             }
         }
     }

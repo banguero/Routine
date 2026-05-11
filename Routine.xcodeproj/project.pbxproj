@@ -28,6 +28,9 @@
 		AA000030 /* FoodLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000043 /* FoodLogViewModel.swift */; };
 		AA000031 /* WaterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000044 /* WaterViewModel.swift */; };
 		AA000032 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000045 /* LoginView.swift */; };
+		AA000050 /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000051 /* Ingredient.swift */; };
+		AA000052 /* MealDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000053 /* MealDetailView.swift */; };
+		AA000054 /* IngredientEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000055 /* IngredientEditorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +55,9 @@
 		AA000043 /* FoodLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodLogViewModel.swift; sourceTree = "<group>"; };
 		AA000044 /* WaterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterViewModel.swift; sourceTree = "<group>"; };
 		AA000045 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		AA000051 /* Ingredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
+		AA000053 /* MealDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDetailView.swift; sourceTree = "<group>"; };
+		AA000055 /* IngredientEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +123,7 @@
 				AA000034 /* FoodEntry.swift */,
 				AA000035 /* WaterEntry.swift */,
 				AA000036 /* DailySummary.swift */,
+				AA000051 /* Ingredient.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -147,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				AA00004A /* Auth */,
+				AA000056 /* Food */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -157,6 +165,15 @@
 				AA000045 /* LoginView.swift */,
 			);
 			path = Auth;
+			sourceTree = "<group>";
+		};
+		AA000056 /* Food */ = {
+			isa = PBXGroup;
+			children = (
+				AA000053 /* MealDetailView.swift */,
+				AA000055 /* IngredientEditorView.swift */,
+			);
+			path = Food;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,6 +264,9 @@
 				AA000030 /* FoodLogViewModel.swift in Sources */,
 				AA000031 /* WaterViewModel.swift in Sources */,
 				AA000032 /* LoginView.swift in Sources */,
+				AA000050 /* Ingredient.swift in Sources */,
+				AA000052 /* MealDetailView.swift in Sources */,
+				AA000054 /* IngredientEditorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
