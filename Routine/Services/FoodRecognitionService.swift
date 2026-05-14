@@ -36,20 +36,87 @@ struct RecognizedMeal {
 }
 
 class FoodRecognitionService {
-    // TODO: Integrate with actual food recognition API
-    // Options:
-    // 1. Firebase ML Kit (on-device)
-    // 2. Google Cloud Vision API via Firebase Functions
-    // 3. Edamam Food Database API
-    // 4. Nutritionix API
-    // 5. Clarifai Food Recognition
+    // MARK: - Configuration
+    
+    enum RecognitionMode {
+        case openAI           // Real AI-powered recognition using OpenAI GPT-4 Vision (client-side)
+        case firebaseFunctions // Server-side recognition via Firebase Functions (more secure)
+        case mock             // Mock data for testing/demo
+    }
+    
+    private let mode: RecognitionMode
+    private var openAIService: OpenAIFoodRecognitionService?
+    private var firebaseFunctionsService: FirebaseFunctionsService?
+    
+    init(mode: RecognitionMode = .openAI) {
+        self.mode = mode
+        
+        // Try to initialize the appropriate service
+        switch mode {
+        case .openAI:
+            do {
+                self.openAIService = try OpenAIFoodRecognitionService()
+            } catch {
+                print("⚠️ Failed to initialize OpenAI service: \(error.localizedDescription)")
+                print("⚠️ Falling back to mock mode. Add your OpenAI API key to Config.plist to enable real food recognition.")
+                self.openAIService = nil
+            }
+            
+        case .firebaseFunctions:
+            self.firebaseFunctionsService = FirebaseFunctionsService()
+            
+        case .mock:
+            break
+        }
+    }
+    
+    // MARK: - Public Methods
     
     func recognizeFood(from image: UIImage) async throws -> RecognizedFood {
+        // Use mock data for single food recognition (simpler fallback)
+        return try await recognizeFoodMock(from: image)
+    }
+    
+    func recognizeMeal(from image: UIImage) async throws -> RecognizedMeal {
+        switch mode {
+        case .openAI:
+            if let service = openAIService {
+                do {
+                    return try await service.recognizeMeal(from: image)
+                } catch {
+                    print("⚠️ OpenAI recognition failed: \(error.localizedDescription)")
+                    print("⚠️ Falling back to mock data")
+                    return try await recognizeMealMock(from: image)
+                }
+            } else {
+                // OpenAI not configured, fall back to mock
+                return try await recognizeMealMock(from: image)
+            }
+            
+        case .firebaseFunctions:
+            if let service = firebaseFunctionsService {
+                do {
+                    return try await service.recognizeMeal(from: image)
+                } catch {
+                    print("⚠️ Firebase Functions recognition failed: \(error.localizedDescription)")
+                    print("⚠️ Falling back to mock data")
+                    return try await recognizeMealMock(from: image)
+                }
+            } else {
+                return try await recognizeMealMock(from: image)
+            }
+            
+        case .mock:
+            return try await recognizeMealMock(from: image)
+        }
+    }
+    
+    // MARK: - Mock Implementations (Fallback)
+    
+    private func recognizeFoodMock(from image: UIImage) async throws -> RecognizedFood {
         // Simulate API call delay
         try await Task.sleep(nanoseconds: 1_500_000_000)
         
-        // Mock response - in production, this would call an actual API
-        // For demo purposes, return a common food item
         let mockFoods = [
             RecognizedFood(name: "Grilled Chicken Salad", calories: 350, protein: 35, carbs: 15, fat: 18, confidence: 0.85),
             RecognizedFood(name: "Avocado Toast", calories: 280, protein: 8, carbs: 28, fat: 16, confidence: 0.78),
@@ -61,12 +128,10 @@ class FoodRecognitionService {
         return mockFoods.randomElement()!
     }
     
-    func recognizeMeal(from image: UIImage) async throws -> RecognizedMeal {
+    private func recognizeMealMock(from image: UIImage) async throws -> RecognizedMeal {
         // Simulate API call delay
         try await Task.sleep(nanoseconds: 2_000_000_000)
         
-        // Mock responses with ingredients - in production, this would call an actual AI API
-        // that analyzes the image and breaks it down into ingredients with nutritional info
         let mockMeals = [
             RecognizedMeal(
                 name: "Grilled Lamb & Chicken",

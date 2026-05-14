@@ -95,13 +95,20 @@ class FoodLogViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            // Recognize meal using AI (returns ingredients)
+            // Step 1: Recognize meal using AI (returns ingredients)
+            print("🤖 Analyzing food photo with AI...")
             let recognizedMeal = try await recognitionService.recognizeMeal(from: image)
+            print("✅ AI Analysis complete: \(recognizedMeal.name)")
+            print("   Confidence: \(Int(recognizedMeal.confidence * 100))%")
+            print("   Ingredients: \(recognizedMeal.ingredients.count)")
+            print("   Total Calories: \(Int(recognizedMeal.totalCalories))")
             
-            // Upload image
+            // Step 2: Upload image to Firebase Storage
+            print("📤 Uploading image to Firebase Storage...")
             let imageUrl = try await storageService.uploadFoodImage(image, userId: userId)
+            print("✅ Image uploaded: \(imageUrl)")
             
-            // Create entry with ingredients
+            // Step 3: Create entry with ingredients
             var entry = FoodEntry(
                 userId: userId,
                 name: recognizedMeal.name,
@@ -120,13 +127,17 @@ class FoodLogViewModel: ObservableObject {
             // Calculate additional nutrients from ingredients
             entry.updateMacrosFromIngredients()
             
-            // Add to local array immediately
+            // Add to local array immediately for UI responsiveness
             foodEntries.insert(entry, at: 0)
             updateDailySummary()
             
-            // Save to Firestore
+            // Step 4: Save to Firestore
+            print("💾 Saving to Firestore...")
             try await firestoreService.addFoodEntry(entry)
+            print("✅ Food entry saved successfully!")
+            
         } catch {
+            print("❌ Error adding food with AI: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }

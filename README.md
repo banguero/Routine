@@ -52,6 +52,7 @@ A beautiful iOS app for tracking meals, calories, and water intake with AI food 
    - FirebaseStorage
    - FirebaseAnalytics
    - FirebaseCrashlytics
+   - FirebaseFunctions (optional, for server-side food recognition)
 
 ### 4. Enable Sign in with Apple
 
@@ -195,10 +196,48 @@ The app runs with mock data for UI development and testing.
 3. Build and run on device or simulator
 4. Sign in with Apple (requires physical device for full test)
 
-## Food Recognition Options
+## Food Recognition
 
-The app includes a mock AI food recognition service. For production, integrate one of:
+The app includes **real AI-powered food recognition** using OpenAI's GPT-4 Vision API!
 
+### Quick Start
+
+1. Get an OpenAI API key from https://platform.openai.com/api-keys
+2. Copy `Routine/Config.plist.template` to `Routine/Config.plist`
+3. Add your API key to `Config.plist`
+4. Build and run - take a photo of food and get instant nutrition analysis!
+
+### Features
+
+- **Real AI Analysis**: GPT-4 Vision identifies foods and estimates portions
+- **Detailed Nutrition**: Calories, protein, carbs, fat, sugar, fiber, sodium
+- **Ingredient Breakdown**: See each component of your meal
+- **Smart Analysis**: Get health insights and suggestions
+- **Firebase Persistence**: All data synced to Firestore and Storage
+
+### Setup Options
+
+**Option 1: OpenAI Direct (Development)**
+- Quick setup with Config.plist
+- API key stored locally (gitignored)
+- See `PHOTO_ANALYSIS_SETUP.md` for details
+
+**Option 2: Firebase Functions (Production)**
+- Secure server-side processing
+- API key never exposed to clients
+- Better for production apps
+- See `PHOTO_ANALYSIS_SETUP.md` for deployment guide
+
+**Option 3: Mock Mode**
+- No API key required
+- Uses sample data for testing
+- Automatically falls back if API unavailable
+
+For detailed setup instructions, see [PHOTO_ANALYSIS_SETUP.md](PHOTO_ANALYSIS_SETUP.md).
+
+### Alternative Services
+
+You can also integrate:
 1. **Firebase ML Kit** - On-device image labeling
 2. **Google Cloud Vision API** - Via Firebase Functions
 3. **Edamam Food Database** - Nutrition data API

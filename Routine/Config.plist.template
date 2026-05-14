@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- OpenAI API Key for Food Recognition -->
+    <!-- Get your key from: https://platform.openai.com/api-keys -->
+    <!-- 
+    IMPORTANT: 
+    1. Copy this file to Config.plist (remove .template extension)
+    2. Replace YOUR_API_KEY_HERE with your actual OpenAI API key
+    3. Config.plist is gitignored and will NOT be committed to source control
+    4. Never commit your API key to git!
+    -->
+    <key>OPENAI_API_KEY</key>
+    <string>YOUR_API_KEY_HERE</string>
+</dict>
+</plist>
